@@ -60,7 +60,14 @@ cd /var/www/html
 cd app
 cd provider
 sudo vi AppServiceProvider.phps
-# update the file with line 78 command ( the below is the updated version )
+# update the file with line 85 command ( the below is the updated version )
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
@@ -75,16 +82,19 @@ sudo vi AppServiceProvider.phps
      */
     public function boot(): void
     {
-            if (env('APP_ENV') === 'production') {\Illuminate\Support\Facades\URL::forceScheme('https');}
-     //
+        if (env('APP_ENV') === 'production') {\Illuminate\Support\Facades\URL::forceScheme('https');}
+        //
     }
 }
-"AppServiceProvider.php"
+
+#boot-function code ( for the aboove line task)
+if (env('APP_ENV') === 'production') {\Illuminate\Support\Facades\URL::forceScheme('https');}
+
 
 #restart the apache service 
 sudo service httpd restart
 
-
+#updated the .env file with the information for the RDS database e.g Database username, password, Database Name, Database URL,port and DB-host)sudo vi .env
 sudo vi .env
 
 #first update the database information
@@ -92,4 +102,11 @@ localhost =Database endpoint
 username=sunday
 password= sunday1234
 
-#update the App with the dnsname of your webesite *
+#copy the sql file from s3 to flyway-9.20.0/sql
+aws s3 cp s3://nestapp-bucket/V1__nest.sql /home/ec2-user/flyway-9.20.0/sql
+
+
+#migrate the sql data from s3 into RDS using flyway(cooy the entire command)
+flyway -url=jdbc:mysql://instancedb.ckm6izfm7tom.us-east-1.rds.amazonaws.com:3306/devdb -user=sunday -password=sunday1234 -locations=filesystem:sql migrate
+
+
