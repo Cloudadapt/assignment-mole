@@ -1,0 +1,30 @@
+#How to migrate your sql data from S3 to amazon rds using flyway
+ 
+#command to download flyway on a linux engine on an ec2 instance
+wget -qO- https://download.red-gate.com/maven/release/org/flywaydb/enterprise/flyway-commandline/9.20.0/flyway-commandline-9.20.0-linux-x64.tar.gz | tar -xvz && sudo ln -s `pwd`/flyway-9.20.0/flyway /usr/local/bin 
+
+#go into the flyway directory
+cd flyway-9.20.0
+
+# Delete the sql folder
+rm -rf sql
+
+#Create a new Director
+mkdir sql
+
+aws s3 cp s3://data-migration-aos/V1__nest.sql /home/ec2-user/flyway-9.20.0/sql
+
+flyway -url=jdbc:mysql://instancedb.ckm6izfm7tom.us-east-1.rds.amazonaws.com:3306/devdb
+-user=sunday -password=sunday1234 -locations=filesystem:sql migrate
+
+OR
+
+#below is another option on how to run the flyway commmand
+
+flyway -url=jdbc:mysql://instancedb.ckm6izfm7tom.us-east-1.rds.amazonaws.com:3306/applicationdb2 \
+-user=sunday \ 
+-password=sunday1234 \
+-locations=filesystem:sql \ 
+migrate
+
+
